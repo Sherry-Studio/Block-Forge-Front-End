@@ -2,9 +2,9 @@ import React from 'react';
 import { AccessibilityActionEvent, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  AnimatedRef,
   measure,
   runOnJS,
-  useAnimatedRef,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -21,7 +21,7 @@ interface TrayPieceProps {
   index: number;
   cellSize: number;
   gap: number;
-  boardRef: ReturnType<typeof useAnimatedRef>;
+  boardRef: AnimatedRef<View>;
   boardBoard: (number | null)[];
   hapticsEnabled: boolean;
   onDragStart: (index: number) => void;
