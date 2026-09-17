@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Block Forge",
+    "slug": "block-forge",
+    "scheme": "blockforge",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#161826"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "studio.sherry.blockforge"
+    },
+    "android": {
+      "package": "studio.sherry.blockforge",
+      "adaptiveIcon": {
+        "backgroundColor": "#161826"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": ["expo-secure-store"],
+    "extra": {
+      "eas": {}
+    }
+  }
+}
