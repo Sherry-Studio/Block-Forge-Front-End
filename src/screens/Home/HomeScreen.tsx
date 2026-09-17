@@ -40,7 +40,7 @@ export function HomeScreen() {
 
         <Card style={styles.dailyCard} onPress={() => navigation.navigate('DailyChallenge')}>
           <Tag label="Daily Challenge" tone="gold" />
-          <Text style={styles.dailyTitle}>Today's puzzle is ready</Text>
+          <Text style={styles.dailyTitle}>Today&apos;s puzzle is ready</Text>
           <Button label="View Challenge" variant="secondary" onPress={() => navigation.navigate('DailyChallenge')} />
         </Card>
 

@@ -57,7 +57,7 @@ export function DailyChallengeScreen() {
   if (checking) {
     return (
       <SafeAreaView style={styles.safe}>
-        <Text style={styles.body}>Checking today's challenge...</Text>
+        <Text style={styles.body}>Checking today&apos;s challenge...</Text>
       </SafeAreaView>
     );
   }
@@ -75,7 +75,7 @@ export function DailyChallengeScreen() {
     <SafeAreaView style={styles.safe}>
       <View style={styles.content}>
         <Tag label="Daily Challenge" tone="gold" />
-        <Text style={styles.title}>Today's Puzzle</Text>
+        <Text style={styles.title}>Today&apos;s Puzzle</Text>
         <Text style={styles.body}>Seed #{seed}. Everyone plays the same board today.</Text>
         {state === 'already_played' && (
           <Tag label="Already played today" tone="default" />

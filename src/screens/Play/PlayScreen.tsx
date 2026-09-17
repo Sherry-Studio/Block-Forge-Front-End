@@ -184,10 +184,10 @@ export function PlayScreen() {
           previewValid={previewValid}
           clearingIndices={clearingIndices}
         />
-        {ghost && (
+        {ghost && run.tray[ghost.trayIndex] && (
           <Ghost
-            shape={run.tray[ghost.trayIndex]?.shape!}
-            colorIndex={run.tray[ghost.trayIndex]?.colorIndex ?? 0}
+            shape={run.tray[ghost.trayIndex]!.shape}
+            colorIndex={run.tray[ghost.trayIndex]!.colorIndex}
             cellSize={34}
             gap={gap}
             animatedStyle={{ transform: [{ translateX: ghost.x - 40 }, { translateY: ghost.y - 40 }] } as any}

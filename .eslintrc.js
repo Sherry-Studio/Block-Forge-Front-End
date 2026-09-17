@@ -18,10 +18,12 @@ module.exports = {
     react: { version: 'detect' },
   },
   env: {
-    'react-native/react-native': true,
     node: true,
     jest: true,
     es6: true,
+  },
+  globals: {
+    __DEV__: 'readonly',
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
