@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAnimatedRef } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -10,9 +10,12 @@ import { ScorePop } from '@/components/ScorePop';
 import { ComboBadge } from '@/components/ComboBadge';
 import { Button } from '@/components/Button';
 import { Sheet } from '@/components/Sheet';
-import { anyFits, BOARD_SIZE, TRAY_SIZE } from '@/game/engine';
+import { StatGrid } from '@/components/StatGrid';
+import { BOARD_SIZE, TRAY_SIZE } from '@/game/engine';
 import { useGameStore } from '@/store/game';
 import { useSettingsStore } from '@/store/settings';
+import { useUserStore } from '@/store/user';
+import { useWalletStore } from '@/store/wallet';
 import { useHaptics } from '@/game/hooks/useHaptics';
 import { ScoreRepository } from '@/storage/ScoreRepository';
 import { NO_MOVE_HOLD_MS } from '@/games/blockforge/constants';
@@ -42,6 +45,8 @@ export function PlayScreen() {
 
   const hapticsEnabled = useSettingsStore((s) => s.settings.hapticsEnabled);
   const haptics = useHaptics();
+  const stats = useUserStore((s) => s.stats);
+  const addCoins = useWalletStore((s) => s.addCoins);
 
   const boardRef = useAnimatedRef<View>();
   const [pauseVisible, setPauseVisible] = useState(false);
@@ -54,8 +59,6 @@ export function PlayScreen() {
   const [ghost, setGhost] = useState<{ x: number; y: number; visible: boolean; trayIndex: number } | null>(null);
   const [pops, setPops] = useState<Pop[]>([]);
   const popId = useRef(0);
-  const [highScore, setHighScore] = useState(0);
-  const [isNewHighScore, setIsNewHighScore] = useState(false);
 
   useEffect(() => {
     if (!resumeRun()) {
@@ -78,6 +81,7 @@ export function PlayScreen() {
       const timer = setTimeout(() => {
         setShowGameOverCard(true);
         haptics.notify();
+        addCoins(Math.max(1, Math.round(run.score / 10)));
         if (isDaily) {
           ScoreRepository.recordDailyCompletion(new Date().toISOString().slice(0, 10));
         }
@@ -106,7 +110,6 @@ export function PlayScreen() {
     );
   }
 
-  const cellSize = 0; // Board computes its own size; kept for Ghost sizing fallback.
   const gap = 4;
 
   const handleDragStart = () => {
@@ -167,11 +170,25 @@ export function PlayScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <View>
+        <Pressable
+          style={styles.pauseBtn}
+          onPress={() => setPauseVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Pause"
+        >
+          <View style={styles.pauseGlyph}>
+            <View style={styles.pauseBar} />
+            <View style={styles.pauseBar} />
+          </View>
+        </Pressable>
+        <View style={styles.scoreCol}>
           <Text style={styles.scoreLabel}>SCORE</Text>
           <Text style={styles.score}>{run.score}</Text>
         </View>
-        <Button label="Pause" variant="ghost" onPress={() => setPauseVisible(true)} />
+        <View style={styles.bestCol}>
+          <Text style={styles.bestLabel}>BEST</Text>
+          <Text style={styles.bestValue}>{stats.bestScore}</Text>
+        </View>
       </View>
 
       <ComboBadge combo={run.combo} />
@@ -226,10 +243,10 @@ export function PlayScreen() {
 
       <Sheet visible={pauseVisible} onClose={() => setPauseVisible(false)}>
         <Text style={styles.sheetTitle}>Paused</Text>
-        <Button label="Resume" onPress={() => setPauseVisible(false)} style={styles.sheetButton} />
+        <Button label="Resume" variant="filled" onPress={() => setPauseVisible(false)} style={styles.sheetButton} />
         <Button
           label="Exit to Home"
-          variant="secondary"
+          variant="ghost"
           onPress={() => {
             setPauseVisible(false);
             setExitConfirmVisible(true);
@@ -251,11 +268,21 @@ export function PlayScreen() {
       </Sheet>
 
       <Sheet visible={showGameOverCard} onClose={() => {}}>
-        <Text style={styles.sheetTitle}>Game Over</Text>
+        <Text style={styles.gameOverLabel}>GAME OVER</Text>
         <Text style={styles.finalScore}>{run.score}</Text>
-        <Text style={styles.sheetBody}>Lines cleared: {run.lines} | Best combo: x{run.bestCombo}</Text>
-        <Button label="Retry" onPress={handleRetry} style={styles.sheetButton} />
-        <Button label="Exit" variant="secondary" onPress={handleExit} style={styles.sheetButton} />
+        <StatGrid
+          columns={2}
+          items={[
+            { label: 'Best', value: stats.bestScore },
+            { label: 'Lines', value: run.lines },
+            { label: 'Best Combo', value: `x${run.bestCombo}` },
+            { label: 'Coins', value: Math.max(1, Math.round(run.score / 10)) },
+          ]}
+        />
+        <Button label="Play Again" variant="filled" onPress={handleRetry} style={styles.sheetButton} />
+        <View style={styles.rowButtons}>
+          <Button label="Home" variant="ghost" onPress={handleExit} style={styles.rowButton} />
+        </View>
       </Sheet>
     </SafeAreaView>
   );
@@ -265,8 +292,24 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: color.bg, padding: space.lg },
   loadingText: { ...textStyle('body'), color: color.textMuted, textAlign: 'center', marginTop: 40 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: space.sm },
+  pauseBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: color.raised,
+    borderWidth: 1,
+    borderColor: color.hairline,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pauseGlyph: { flexDirection: 'row', gap: 3 },
+  pauseBar: { width: 3, height: 12, borderRadius: 1.5, backgroundColor: color.textMuted },
+  scoreCol: { alignItems: 'center' },
   scoreLabel: { ...textStyle('caption'), color: color.textFaint },
   score: { ...textStyle('display'), ...tabularNums, color: color.text },
+  bestCol: { alignItems: 'flex-end', minWidth: 36 },
+  bestLabel: { ...textStyle('caption'), color: color.textFaint },
+  bestValue: { ...textStyle('body'), ...tabularNums, color: color.textMuted, fontWeight: '600' },
   boardWrap: { marginTop: space.md },
   tray: { flexDirection: 'row', justifyContent: 'space-evenly', marginTop: space.xl },
   noMoveToast: {
@@ -278,5 +321,8 @@ const styles = StyleSheet.create({
   sheetTitle: { ...textStyle('h1'), color: color.text, marginBottom: space.md },
   sheetBody: { ...textStyle('body'), color: color.textMuted, marginBottom: space.lg },
   sheetButton: { marginTop: space.sm },
-  finalScore: { ...textStyle('display'), ...tabularNums, color: color.accent300, marginBottom: space.md },
+  gameOverLabel: { ...textStyle('caption'), color: color.textFaint, textAlign: 'center', letterSpacing: 1 },
+  finalScore: { ...textStyle('display'), ...tabularNums, color: color.accent300, marginBottom: space.md, textAlign: 'center' },
+  rowButtons: { flexDirection: 'row', justifyContent: 'center', marginTop: space.sm },
+  rowButton: { flex: 1 },
 });

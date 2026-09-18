@@ -10,7 +10,7 @@ import { useHaptics } from '@/game/hooks/useHaptics';
 import { color, radius, space } from '@/theme/tokens';
 import { textStyle } from '@/theme/typography';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'filled';
 export type ButtonState = 'idle' | 'disabled' | 'success';
 
 interface ButtonProps {
@@ -78,7 +78,14 @@ export function Button({
         style={[styles.base, variantStyle, disabled && styles.disabled, successStyle]}
         hitSlop={8}
       >
-        <Text style={[styles.label, variant === 'ghost' && styles.ghostLabel, disabled && styles.disabledLabel]}>
+        <Text
+          style={[
+            styles.label,
+            variant === 'ghost' && styles.ghostLabel,
+            variant === 'filled' && styles.filledLabel,
+            disabled && styles.disabledLabel,
+          ]}
+        >
           {state === 'success' ? '✓ Done' : label}
         </Text>
       </Pressable>
@@ -104,6 +111,10 @@ const styles = StyleSheet.create({
   ghostLabel: {
     color: color.textMuted,
   },
+  filledLabel: {
+    color: color.bg,
+    fontWeight: '600',
+  },
   disabled: {
     opacity: 0.4,
   },
@@ -127,5 +138,9 @@ const variantStyles: Record<ButtonVariant, ViewStyle> = {
   ghost: {
     backgroundColor: 'transparent',
     borderColor: 'transparent',
+  },
+  filled: {
+    backgroundColor: color.accent,
+    borderColor: color.accent,
   },
 };

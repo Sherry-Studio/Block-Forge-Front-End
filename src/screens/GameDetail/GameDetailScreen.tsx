@@ -3,10 +3,14 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
-import { Tag } from '@/components/Tag';
 import { EmptyState } from '@/components/EmptyState';
+import { GradientCard } from '@/components/GradientCard';
+import { Header } from '@/components/Header';
+import { StatGrid } from '@/components/StatGrid';
+import { StatusPill } from '@/components/StatusPill';
 import { getGameById } from '@/games/registry';
+import { useUserStore } from '@/store/user';
+import { useWalletStore } from '@/store/wallet';
 import { color, space } from '@/theme/tokens';
 import { textStyle } from '@/theme/typography';
 
@@ -16,6 +20,8 @@ export function GameDetailScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const game = getGameById(route.params?.gameId);
+  const stats = useUserStore((s) => s.stats);
+  const coins = useWalletStore((s) => s.coins);
 
   if (!game) {
     return (
@@ -27,55 +33,78 @@ export function GameDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <Header title="" onBack={() => navigation.goBack()} coins={coins} />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={[styles.hero, { borderColor: game.accent }]}>
+        <GradientCard colors={[game.accent, shade(game.accent, 0.5)]} decorative style={styles.banner}>
+          <StatusPill
+            label={game.status === 'coming_soon' ? 'COMING SOON' : 'PLAY'}
+            tone={game.status === 'coming_soon' ? 'muted' : 'teal'}
+            variant={game.status === 'coming_soon' ? 'outline' : 'filled'}
+          />
+          <StatusPill label={game.category.toUpperCase()} tone="muted" variant="outline" />
           <Text style={styles.title}>{game.title}</Text>
-          <Tag label={game.category} tone="accent" />
-        </View>
+          <Text style={styles.tagline}>{game.description}</Text>
+        </GradientCard>
 
-        <Text style={styles.description}>{game.description}</Text>
-
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Features</Text>
-          {game.features.map((f) => (
-            <Text key={f} style={styles.feature}>
-              - {f}
-            </Text>
-          ))}
-        </Card>
+        <StatGrid
+          items={[
+            { label: 'BEST SCORE', value: stats.bestScore },
+            { label: 'GAMES', value: stats.runsPlayed },
+            { label: 'LINES', value: stats.totalLinesCleared },
+          ]}
+        />
 
         {game.playable ? (
-          <>
-            <Button label="Preview" variant="secondary" onPress={() => navigation.navigate('Previews', { gameId: game.id })} />
-            <Button label="Play" onPress={() => navigation.navigate(game.route ?? 'ClassicIntro')} style={styles.playButton} />
-          </>
+          <View style={styles.actions}>
+            <Button label="PLAY" onPress={() => navigation.navigate(game.route ?? 'ClassicIntro')} />
+            <Button label="DAILY CHALLENGE" variant="secondary" onPress={() => navigation.navigate('DailyChallenge')} />
+          </View>
         ) : (
-          <Card style={styles.comingSoon}>
-            <Tag label="Coming Soon" tone="gold" />
+          <View style={styles.comingSoon}>
             <Text style={styles.body}>This game is still in the forge. Check back in a future update.</Text>
-          </Card>
+          </View>
         )}
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.previews}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={[styles.previewCard, { backgroundColor: shade(game.accent, 0.18) }]} />
+          ))}
+        </ScrollView>
+
+        <View style={styles.howItWorks}>
+          <Text style={styles.sectionTitle}>HOW IT WORKS</Text>
+          {game.features.map((f) => (
+            <Text key={f} style={styles.feature}>
+              • {f}
+            </Text>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+function shade(hex: string, factor: number): string {
+  const c = hex.replace('#', '');
+  const num = parseInt(c, 16);
+  const r = Math.round(((num >> 16) & 0xff) * factor);
+  const g = Math.round(((num >> 8) & 0xff) * factor);
+  const b = Math.round((num & 0xff) * factor);
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: color.bg },
-  scroll: { padding: space.lg, gap: space.lg, paddingBottom: space.xxl * 2 },
-  hero: {
-    borderWidth: 1.5,
-    borderRadius: 20,
-    padding: space.xxl,
-    gap: space.sm,
-    backgroundColor: color.card,
-  },
+  scroll: { paddingHorizontal: space.lg, gap: space.lg, paddingBottom: space.xxl * 2 },
+  banner: { gap: space.xs, minHeight: 200, justifyContent: 'flex-end' },
   title: { ...textStyle('display'), color: color.text },
-  description: { ...textStyle('body'), color: color.textMuted },
-  card: { gap: space.xs },
-  sectionTitle: { ...textStyle('h2'), color: color.text, marginBottom: space.xs },
-  feature: { ...textStyle('body'), color: color.textMuted },
-  playButton: { marginTop: space.sm },
-  comingSoon: { gap: space.sm, alignItems: 'flex-start' },
+  tagline: { ...textStyle('body'), color: color.accent300 },
+  actions: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' },
+  comingSoon: { paddingVertical: space.sm },
   body: { ...textStyle('body'), color: color.textMuted },
+  previews: { flexGrow: 0 },
+  previewCard: { width: 140, height: 90, borderRadius: 14, marginRight: space.sm },
+  howItWorks: { gap: space.xs },
+  sectionTitle: { ...textStyle('caption'), color: color.textFaint, fontWeight: '600', marginBottom: space.xs },
+  feature: { ...textStyle('body'), color: color.textMuted },
 });

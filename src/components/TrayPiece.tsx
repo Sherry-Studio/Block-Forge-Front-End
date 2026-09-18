@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { Piece } from '@/game/engine';
 import { fitsWorklet, originForWorklet } from '@/games/blockforge/dragMath';
 import { GHOST_OFFSET_Y, TRAY_HIT_HEIGHT, TRAY_HIT_WIDTH } from '@/games/blockforge/constants';
+import { LinearGradient } from 'expo-linear-gradient';
 import { blocks, radius } from '@/theme/tokens';
 
 interface TrayPieceProps {
@@ -154,7 +155,7 @@ export function TrayPiece({
     return <View style={[styles.slot, { width: TRAY_HIT_WIDTH, height: TRAY_HIT_HEIGHT }]} />;
   }
 
-  const [top] = blocks[piece.colorIndex % blocks.length];
+  const [top, bottom] = blocks[piece.colorIndex % blocks.length];
   const maxCol = Math.max(...piece.shape.cells.map((c) => c[1]));
   const maxRow = Math.max(...piece.shape.cells.map((c) => c[0]));
   const shapeCellSize = Math.min(20, (TRAY_HIT_WIDTH - 16) / (maxCol + 1));
@@ -171,15 +172,17 @@ export function TrayPiece({
       >
         <View style={styles.shapeWrap}>
           {piece.shape.cells.map(([r, c], i) => (
-            <View
+            <LinearGradient
               key={i}
+              colors={[top, bottom]}
+              start={{ x: 0.2, y: 0 }}
+              end={{ x: 0.8, y: 1 }}
               style={{
                 position: 'absolute',
                 width: shapeCellSize,
                 height: shapeCellSize,
                 left: c * (shapeCellSize + 2),
                 top: r * (shapeCellSize + 2),
-                backgroundColor: top,
                 borderRadius: radius.sm,
               }}
             />

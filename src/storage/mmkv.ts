@@ -30,4 +30,5 @@ export const StorageKeys = {
   onboardingDone: 'onboarding.done',
   catalogCache: 'catalog.cache',
   outbox: 'outbox.queue',
+  walletCoins: 'wallet.coins',
 } as const;
