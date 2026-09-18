@@ -33,15 +33,16 @@ export function GameDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Header title="" onBack={() => navigation.goBack()} coins={coins} />
+      <Header title={game.title} subtitle={game.category} onBack={() => navigation.goBack()} coins={coins} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <GradientCard colors={[game.accent, shade(game.accent, 0.5)]} decorative style={styles.banner}>
           <StatusPill
-            label={game.status === 'coming_soon' ? 'COMING SOON' : 'PLAY'}
+            label={game.status === 'coming_soon' ? 'COMING SOON' : 'PLAYABLE'}
             tone={game.status === 'coming_soon' ? 'muted' : 'teal'}
             variant={game.status === 'coming_soon' ? 'outline' : 'filled'}
+            style={styles.bannerPill}
           />
-          <StatusPill label={game.category.toUpperCase()} tone="muted" variant="outline" />
+          <Text style={styles.bannerCaption}>{game.category.toUpperCase()}</Text>
           <Text style={styles.title}>{game.title}</Text>
           <Text style={styles.tagline}>{game.description}</Text>
         </GradientCard>
@@ -96,7 +97,9 @@ function shade(hex: string, factor: number): string {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: color.bg },
   scroll: { paddingHorizontal: space.lg, gap: space.lg, paddingBottom: space.xxl * 2 },
-  banner: { gap: space.xs, minHeight: 200, justifyContent: 'flex-end' },
+  banner: { gap: space.xs, minHeight: 200, justifyContent: 'flex-end', position: 'relative' },
+  bannerPill: { position: 'absolute', top: 0, right: 0 },
+  bannerCaption: { ...textStyle('caption'), color: color.accent300, fontWeight: '700', letterSpacing: 0.5 },
   title: { ...textStyle('display'), color: color.text },
   tagline: { ...textStyle('body'), color: color.accent300 },
   actions: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' },

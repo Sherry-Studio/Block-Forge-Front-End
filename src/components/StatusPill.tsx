@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { color, radius, space } from '@/theme/tokens';
 import { textStyle } from '@/theme/typography';
 
@@ -10,6 +10,7 @@ interface StatusPillProps {
   tone?: PillTone;
   /** filled = solid background (highest emphasis, e.g. PLAY); outline = bordered only. */
   variant?: 'filled' | 'outline';
+  style?: ViewStyle;
 }
 
 const toneColor: Record<PillTone, string> = {
@@ -21,7 +22,7 @@ const toneColor: Record<PillTone, string> = {
 };
 
 /** Small caps status/label pill — "PLAY", "COMING SOON", "LOCKED", etc. */
-export function StatusPill({ label, tone = 'muted', variant = 'outline' }: StatusPillProps) {
+export function StatusPill({ label, tone = 'muted', variant = 'outline', style }: StatusPillProps) {
   const c = toneColor[tone];
   const filled = variant === 'filled';
   return (
@@ -29,6 +30,7 @@ export function StatusPill({ label, tone = 'muted', variant = 'outline' }: Statu
       style={[
         styles.base,
         filled ? { backgroundColor: c } : { borderWidth: 1, borderColor: c },
+        style,
       ]}
     >
       <Text style={[styles.label, { color: filled ? color.bg : c }]}>{label}</Text>

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { color, space } from '@/theme/tokens';
 import { textStyle } from '@/theme/typography';
 import { IconTile } from './IconTile';
@@ -13,14 +13,15 @@ interface ListRowProps {
   trailingText?: string;
   chevron?: boolean;
   onPress?: () => void;
+  style?: ViewStyle | ViewStyle[];
 }
 
 /** Icon tile + label(+subtitle) + trailing slot/value + optional chevron —
  * the recurring settings/profile/rewards navigation row. */
-export function ListRow({ label, subtitle, icon, iconColors, trailing, trailingText, chevron, onPress }: ListRowProps) {
+export function ListRow({ label, subtitle, icon, iconColors, trailing, trailingText, chevron, onPress, style }: ListRowProps) {
   const Wrapper: any = onPress ? Pressable : View;
   return (
-    <Wrapper style={styles.row} onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}>
+    <Wrapper style={[styles.row, style]} onPress={onPress} accessibilityRole={onPress ? 'button' : undefined}>
       {icon !== undefined || iconColors ? (
         <IconTile colors={iconColors} size={38} style={styles.icon}>
           {icon}
