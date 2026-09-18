@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from '@/components/Button';
-import { Tag } from '@/components/Tag';
+import { GradientCard } from '@/components/GradientCard';
+import { Header } from '@/components/Header';
+import { StatusPill } from '@/components/StatusPill';
 import { OfflineState } from '@/components/ErrorState';
 import { seedFromUTCDate } from '@/game/rng';
 import { ScoreRepository } from '@/storage/ScoreRepository';
@@ -57,7 +59,8 @@ export function DailyChallengeScreen() {
   if (checking) {
     return (
       <SafeAreaView style={styles.safe}>
-        <Text style={styles.body}>Checking today&apos;s challenge...</Text>
+        <Header title="Daily Challenge" onBack={() => navigation.goBack()} />
+        <Text style={[styles.body, styles.centerPad]}>Checking today&apos;s challenge...</Text>
       </SafeAreaView>
     );
   }
@@ -65,34 +68,44 @@ export function DailyChallengeScreen() {
   if (state === 'offline') {
     return (
       <SafeAreaView style={styles.safe}>
-        <OfflineState onRetry={() => setChecking(true)} />
-        <Text style={styles.cachedNote}>Your last cached objective is shown when a connection returns.</Text>
+        <Header title="Daily Challenge" onBack={() => navigation.goBack()} />
+        <View style={styles.centerPad}>
+          <OfflineState onRetry={() => setChecking(true)} />
+          <Text style={styles.cachedNote}>Your last cached objective is shown when a connection returns.</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.safe}>
+      <Header title="Daily Challenge" onBack={() => navigation.goBack()} />
       <View style={styles.content}>
-        <Tag label="Daily Challenge" tone="gold" />
-        <Text style={styles.title}>Today&apos;s Puzzle</Text>
-        <Text style={styles.body}>Seed #{seed}. Everyone plays the same board today.</Text>
-        {state === 'already_played' && (
-          <Tag label="Already played today" tone="default" />
-        )}
+        <GradientCard colors={['#16342f', '#161826']} decorative style={styles.card}>
+          <StatusPill label="DAILY CHALLENGE" tone="gold" variant="outline" />
+          <Text style={styles.title}>Today&apos;s Puzzle</Text>
+          <Text style={styles.body}>Seed #{seed}. Everyone plays the same board today.</Text>
+          {state === 'already_played' && <StatusPill label="ALREADY PLAYED TODAY" tone="muted" />}
+        </GradientCard>
       </View>
-      <Button
-        label={state === 'already_played' ? 'Come back tomorrow' : 'Play Daily Challenge'}
-        state={state === 'already_played' ? 'disabled' : 'idle'}
-        onPress={() => navigation.navigate('Play', { mode: 'daily', seed })}
-      />
+      <View style={styles.footer}>
+        <Button
+          label={state === 'already_played' ? 'Come back tomorrow' : 'Play Daily Challenge'}
+          variant="filled"
+          state={state === 'already_played' ? 'disabled' : 'idle'}
+          onPress={() => navigation.navigate('Play', { mode: 'daily', seed })}
+        />
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: color.bg, padding: space.xxl, justifyContent: 'space-between' },
-  content: { flex: 1, justifyContent: 'center', gap: space.sm },
+  safe: { flex: 1, backgroundColor: color.bg },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: space.lg },
+  card: { gap: space.sm },
+  footer: { padding: space.lg },
+  centerPad: { paddingHorizontal: space.xxl, marginTop: space.lg },
   title: { ...textStyle('display'), color: color.text },
   body: { ...textStyle('body'), color: color.textMuted },
   cachedNote: { ...textStyle('caption'), color: color.textFaint, textAlign: 'center', marginTop: space.sm },

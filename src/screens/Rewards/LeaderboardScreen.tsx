@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Tag } from '@/components/Tag';
+import { useNavigation } from '@react-navigation/native';
 import { EmptyState } from '@/components/EmptyState';
+import { Header } from '@/components/Header';
 import { getLocalBestEntry, LeaderboardScope, useLeaderboard } from '@/api/queries/leaderboard';
-import { color, space } from '@/theme/tokens';
+import { color, radius, space } from '@/theme/tokens';
 import { textStyle, tabularNums } from '@/theme/typography';
 
 const TABS: LeaderboardScope[] = ['global', 'weekly', 'friends'];
 
 export function LeaderboardScreen() {
+  const navigation = useNavigation<any>();
   const [scope, setScope] = useState<LeaderboardScope>('global');
   const { data, isError, isLoading } = useLeaderboard(scope);
   const localBest = getLocalBestEntry();
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Text style={styles.title}>Leaderboard</Text>
-      <View style={styles.tabs}>
+      <Header title="Leaderboard" onBack={() => navigation.goBack()} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsRow} contentContainerStyle={styles.tabs}>
         {TABS.map((tab) => (
-          <View key={tab} onTouchEnd={() => setScope(tab)}>
-            <Tag label={tab} tone={scope === tab ? 'accent' : 'default'} />
-          </View>
+          <Pressable key={tab} onPress={() => setScope(tab)} style={[styles.chip, scope === tab && styles.chipActive]}>
+            <Text style={[styles.chipLabel, scope === tab && styles.chipLabelActive]}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </Text>
+          </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       {isLoading && <Text style={styles.body}>Loading...</Text>}
 
-      {(isError || !data) && (
+      {(isError || !data) && !isLoading && (
         <>
           <EmptyState
             title="Offline"
@@ -45,6 +49,7 @@ export function LeaderboardScreen() {
         <FlatList
           data={data}
           keyExtractor={(e) => `${e.rank}-${e.name}`}
+          contentContainerStyle={styles.listPad}
           renderItem={({ item }) => (
             <View style={[styles.localRow, item.isLocalPlayer && styles.highlight]}>
               <Text style={styles.rank}>{item.rank}</Text>
@@ -59,14 +64,27 @@ export function LeaderboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: color.bg, paddingHorizontal: space.lg },
-  title: { ...textStyle('h1'), color: color.text, marginTop: space.sm },
-  tabs: { flexDirection: 'row', gap: space.xs, marginVertical: space.md },
-  body: { ...textStyle('body'), color: color.textMuted },
+  safe: { flex: 1, backgroundColor: color.bg },
+  tabsRow: { flexGrow: 0, marginTop: space.xs },
+  tabs: { paddingHorizontal: space.lg, gap: space.xs },
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: space.lg,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: color.hairline,
+    backgroundColor: color.card,
+  },
+  chipActive: { backgroundColor: color.accent, borderColor: color.accent },
+  chipLabel: { ...textStyle('caption'), color: color.textMuted, fontWeight: '600' },
+  chipLabelActive: { color: color.bg },
+  body: { ...textStyle('body'), color: color.textMuted, paddingHorizontal: space.lg, marginTop: space.md },
+  listPad: { paddingHorizontal: space.lg, paddingBottom: space.xxl * 2 },
   localRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: space.sm,
+    paddingHorizontal: space.lg,
     borderBottomWidth: 1,
     borderBottomColor: color.hairline,
   },

@@ -1,40 +1,50 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Card } from '@/components/Card';
-import { Tag } from '@/components/Tag';
+import { Header } from '@/components/Header';
+import { ListRow } from '@/components/ListRow';
+import { StatusPill } from '@/components/StatusPill';
 import { Button } from '@/components/Button';
+import { useWalletStore } from '@/store/wallet';
 import { color, space } from '@/theme/tokens';
-import { textStyle } from '@/theme/typography';
 
 const CATEGORIES = ['Block Themes', 'Board Themes', 'Backgrounds', 'Effects'];
 
 export function ShopScreen() {
   const navigation = useNavigation<any>();
+  const coins = useWalletStore((s) => s.coins);
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Text style={styles.title}>Shop</Text>
+      <Header title="Shop" onBack={() => navigation.goBack()} coins={coins} />
       <FlatList
         data={CATEGORIES}
         keyExtractor={(c) => c}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <Card style={styles.card} onPress={() => navigation.navigate('ShopCategory', { category: item })}>
-            <Text style={styles.categoryTitle}>{item}</Text>
-            <Tag label="Coming Soon" />
-          </Card>
+          <View style={styles.card}>
+            <ListRow
+              label={item}
+              trailing={<StatusPill label="COMING SOON" tone="muted" />}
+              onPress={() => navigation.navigate('ShopCategory', { category: item })}
+            />
+          </View>
         )}
       />
-      <Button label="Power-Ups" variant="secondary" onPress={() => navigation.navigate('PowerUps')} />
+      <Button label="Power-Ups" variant="secondary" onPress={() => navigation.navigate('PowerUps')} style={styles.powerUps} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: color.bg, paddingHorizontal: space.lg, gap: space.sm },
-  title: { ...textStyle('h1'), color: color.text, marginTop: space.sm },
-  list: { gap: space.sm, paddingVertical: space.md },
-  card: { gap: space.xs },
-  categoryTitle: { ...textStyle('h2'), color: color.text },
+  safe: { flex: 1, backgroundColor: color.bg },
+  list: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.md },
+  card: {
+    backgroundColor: color.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: color.hairline,
+    paddingHorizontal: space.lg,
+  },
+  powerUps: { marginHorizontal: space.lg, marginBottom: space.lg },
 });

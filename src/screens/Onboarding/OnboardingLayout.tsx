@@ -22,7 +22,7 @@ export function OnboardingLayout({ title, body, primaryLabel, onPrimary, onSkip,
         {children}
       </View>
       <View style={styles.footer}>
-        <Button label={primaryLabel} onPress={onPrimary} />
+        <Button label={primaryLabel} variant="filled" onPress={onPrimary} />
         {onSkip ? <Button label="Skip" variant="ghost" onPress={onSkip} /> : null}
       </View>
     </SafeAreaView>

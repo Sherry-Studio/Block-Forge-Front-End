@@ -2,10 +2,10 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Card } from '@/components/Card';
-import { Tag } from '@/components/Tag';
+import { Header } from '@/components/Header';
+import { ListRow } from '@/components/ListRow';
+import { StatusPill } from '@/components/StatusPill';
 import { color, space } from '@/theme/tokens';
-import { textStyle } from '@/theme/typography';
 
 const MODES = [
   { id: 'classic', title: 'Classic', description: 'Endless play, chase your best score.', live: true, route: 'ClassicIntro' },
@@ -18,20 +18,18 @@ export function GameModesScreen() {
   const navigation = useNavigation<any>();
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Text style={styles.title}>Game Modes</Text>
+      <Header title="Game Modes" onBack={() => navigation.goBack()} />
       <View style={styles.list}>
         {MODES.map((mode) => (
-          <Card
-            key={mode.id}
-            style={styles.card}
-            onPress={mode.live ? () => navigation.navigate(mode.route) : undefined}
-          >
-            <View style={styles.row}>
-              <Text style={styles.modeTitle}>{mode.title}</Text>
-              {!mode.live && <Tag label="Coming Soon" />}
-            </View>
-            <Text style={styles.description}>{mode.description}</Text>
-          </Card>
+          <View key={mode.id} style={styles.card}>
+            <ListRow
+              label={mode.title}
+              subtitle={mode.description}
+              trailing={!mode.live ? <StatusPill label="COMING SOON" tone="muted" /> : undefined}
+              chevron={mode.live}
+              onPress={mode.live ? () => navigation.navigate(mode.route) : undefined}
+            />
+          </View>
         ))}
       </View>
     </SafeAreaView>
@@ -39,11 +37,13 @@ export function GameModesScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: color.bg, padding: space.lg },
-  title: { ...textStyle('h1'), color: color.text, marginBottom: space.md },
-  list: { gap: space.sm },
-  card: { gap: space.xs },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  modeTitle: { ...textStyle('h2'), color: color.text },
-  description: { ...textStyle('body'), color: color.textMuted },
+  safe: { flex: 1, backgroundColor: color.bg },
+  list: { padding: space.lg, gap: space.sm },
+  card: {
+    backgroundColor: color.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: color.hairline,
+    paddingHorizontal: space.lg,
+  },
 });

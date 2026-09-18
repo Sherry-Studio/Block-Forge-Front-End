@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Button } from '@/components/Button';
 import { GradientCard } from '@/components/GradientCard';
 import { Header } from '@/components/Header';
-import { IconTile } from '@/components/IconTile';
 import { ListRow } from '@/components/ListRow';
 import { StatusPill } from '@/components/StatusPill';
 import { RewardRepository } from '@/storage/RewardRepository';
