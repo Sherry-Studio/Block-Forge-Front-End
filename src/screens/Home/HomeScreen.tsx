@@ -124,8 +124,8 @@ export function HomeScreen() {
                     style={styles.gameCard}
                     onPress={() => navigation.navigate('GameDetail', { gameId: game.id })}
                   >
-                    <IconTile colors={gameGradient(game.accent)} size={64} style={styles.gameIcon}>
-                      <View style={styles.glyph} />
+                    <IconTile colors={game.gradient} size={64} style={styles.gameIcon}>
+                      <Text style={styles.glyph}>{game.glyph}</Text>
                     </IconTile>
                     <Text style={styles.gameTitle} numberOfLines={1}>
                       {game.title}
@@ -145,19 +145,6 @@ export function HomeScreen() {
       </ScrollView>
     </SafeAreaView>
   );
-}
-
-function gameGradient(accent: string): [string, string] {
-  return [accent, shade(accent, 0.55)];
-}
-
-function shade(hex: string, factor: number): string {
-  const c = hex.replace('#', '');
-  const num = parseInt(c, 16);
-  const r = Math.round(((num >> 16) & 0xff) * factor);
-  const g = Math.round(((num >> 8) & 0xff) * factor);
-  const b = Math.round((num & 0xff) * factor);
-  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
 const styles = StyleSheet.create({
@@ -202,7 +189,7 @@ const styles = StyleSheet.create({
   section: { gap: space.sm },
   gameCard: { width: 100, marginRight: space.md, gap: 6 },
   gameIcon: { marginBottom: 2 },
-  glyph: { width: 20, height: 20, borderRadius: radius.sm, backgroundColor: 'rgba(255,255,255,0.35)' },
+  glyph: { fontSize: 26, color: 'rgba(255,255,255,0.85)' },
   gameTitle: { ...textStyle('body'), color: color.text, fontWeight: '600' },
   gameCategory: { ...textStyle('caption'), color: color.textFaint },
 });

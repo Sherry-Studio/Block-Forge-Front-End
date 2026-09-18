@@ -53,8 +53,8 @@ export function GamesHubScreen() {
           ListEmptyComponent={<EmptyState title="No games found" message="Try a different search or category." />}
           renderItem={({ item }) => (
             <Pressable style={styles.row} onPress={() => navigation.navigate('GameDetail', { gameId: item.id })}>
-              <IconTile colors={[item.accent, item.accent]} size={52}>
-                <View style={styles.glyph} />
+              <IconTile colors={item.gradient} size={52}>
+                <Text style={styles.glyph}>{item.glyph}</Text>
               </IconTile>
               <View style={styles.rowText}>
                 <View style={styles.rowHeader}>
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   chipLabelActive: { color: color.bg },
   list: { gap: space.lg, paddingVertical: space.lg, paddingBottom: space.xxl * 2 },
   row: { flexDirection: 'row', gap: space.md },
-  glyph: { width: 20, height: 20, borderRadius: radius.sm, backgroundColor: 'rgba(255,255,255,0.4)' },
+  glyph: { fontSize: 22, color: 'rgba(255,255,255,0.85)' },
   rowText: { flex: 1, gap: 3 },
   rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   gameTitle: { ...textStyle('h2'), color: color.text },

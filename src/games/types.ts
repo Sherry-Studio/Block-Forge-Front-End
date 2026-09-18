@@ -15,6 +15,10 @@ export interface GameDefinition {
   description: string;
   /** Name of an icon glyph rendered by the games hub / cards. */
   icon: string;
+  /** Single Unicode glyph rendered centered inside this game's icon tile. */
+  glyph: string;
+  /** [top, bottom] gradient pair used for this game's icon tile and detail hero banner. */
+  gradient: [string, string];
   /** Artwork key; falls back to a gradient placeholder when absent. */
   artwork?: string;
   status: GameStatus;

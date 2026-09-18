@@ -35,7 +35,7 @@ export function GameDetailScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title={game.title} subtitle={game.category} onBack={() => navigation.goBack()} coins={coins} />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <GradientCard colors={[game.accent, shade(game.accent, 0.5)]} decorative style={styles.banner}>
+        <GradientCard colors={game.gradient} decorative style={styles.banner}>
           <StatusPill
             label={game.status === 'coming_soon' ? 'COMING SOON' : 'PLAYABLE'}
             tone={game.status === 'coming_soon' ? 'muted' : 'teal'}
